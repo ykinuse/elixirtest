@@ -5,16 +5,19 @@ defmodule Ticker do
   def test_with(n) do
     start
     1..n
-    |> Enum.each(fn(x) ->
-      x
-      |> Client.start
+    |> Enum.each(fn(_x) ->
+      Client.start
       |> register
     end)
   end
 
   def start do
-    pid = spawn(__MODULE__, :generator, [])
-    :global.register_name(@name, pid)
+    case :global.whereis_name(@name) do
+      :undefined ->
+        pid = spawn(__MODULE__, :generator, [])
+        :global.register_name(@name, pid)
+      _ignored ->
+    end
   end
 
   def register(client_pid) do
@@ -39,14 +42,9 @@ defmodule Ticker do
           [] ->
             IO.puts("lonely tick")
             generator(clients, acc, size)
-          all_clients when acc >= size ->
-            IO.puts("tick")
-            all_clients
-            |> Enum.at(0)
-            |> send({:tick})
-            generator(all_clients, 1, size)
           all_clients ->
             IO.puts("tick")
+            acc = if acc >= size do 0 else acc end
             all_clients
             |> Enum.at(acc)
             |> send({:tick})
@@ -57,15 +55,15 @@ defmodule Ticker do
 end
 
 defmodule Client do
-  def start(n) do
-    pid = spawn(__MODULE__, :listen, [n])
+  def start do
+    spawn(__MODULE__, :listen, [])
   end
 
-  def listen(n) do
+  def listen do
     receive do
       {:tick} ->
-        IO.puts("tock #{n}")
-        listen(n)
+        IO.puts("tock #{inspect(self)}")
+        listen
       {:end} ->
         exit(:end)
     end
