@@ -1,4 +1,4 @@
-defmodule My.Use do
+defmodule My.Test do
   def test_if do
     require My
     My.if 1 == 2 do
