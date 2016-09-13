@@ -10,9 +10,9 @@ defmodule FibSolver do
     end
   end
 
-  defp fib_cal(0), do: 0
-  defp fib_cal(1), do: 1
-  defp fib_cal(n) do
+  def fib_cal(0), do: 0
+  def fib_cal(1), do: 1
+  def fib_cal(n) do
     fib_cal(n-1) + fib_cal(n-2)
   end
 end

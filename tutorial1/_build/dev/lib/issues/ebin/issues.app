@@ -2,8 +2,10 @@
              [{registered,[]},
               {description,"issues"},
               {vsn,"0.0.1"},
-              {modules,['Elixir.FibScheduler','Elixir.FibSolver',
+              {modules,['Elixir.Client','Elixir.FibAgent',
+                        'Elixir.FibScheduler','Elixir.FibSolver',
                         'Elixir.Issues','Elixir.Issues.CLI',
                         'Elixir.Issues.GithubIssues',
-                        'Elixir.Issues.TableFormatter','Elixir.Spawn']},
+                        'Elixir.Issues.TableFormatter','Elixir.Spawn',
+                        'Elixir.Ticker','Elixir.Ticker.Ring']},
               {applications,[kernel,stdlib,elixir,logger,httpoison]}]}.
