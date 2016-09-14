@@ -24,10 +24,21 @@ defmodule Tracer do
     end
   end
 
+  defmacro def({:when, _, [{name, _, args}, clauses, do: content]}) do
+    quote do
+      Kernel.def(unquote(name)) do
+        IO.puts("==> call #{Tracer.dump_defn(unquote(name), unquote(args))}")
+        result = unquote(content)
+        IO.puts("<== return #{result}")
+        result
+      end
+    end
+  end
+
   defmacro __using__(_opt) do
     quote do
       import(Kernel, except: [def: 2])
-      import(Tracer, only: [def: 2])
+      import(unquote(__MODULE__), only: [def: 2])
     end
   end
 end
