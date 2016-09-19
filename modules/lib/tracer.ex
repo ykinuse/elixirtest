@@ -13,7 +13,15 @@ defmodule Tracer do
     "#{name}(#{Tracer.dump_args(args)})"
   end
 
+  defmacro def(definition = {:when, _, [function = {name, _, args} | _clause]}, do: content) do
+    impl_def(definition, name, args, content)
+  end
+
   defmacro def(definition={name, _, args}, do: content) do
+    impl_def(definition, name, args, content)
+  end
+
+  defp impl_def(definition, name, args, content) do
     quote do
       Kernel.def(unquote(definition)) do
         IO.puts("==> call #{Tracer.dump_defn(unquote(name), unquote(args))}")
@@ -24,13 +32,18 @@ defmodule Tracer do
     end
   end
 
-  defmacro def({:when, _, [{name, _, args}, clauses, do: content]}) do
+  defmacro def_sub_module(name) do
     quote do
-      Kernel.def(unquote(name)) do
-        IO.puts("==> call #{Tracer.dump_defn(unquote(name), unquote(args))}")
-        result = unquote(content)
-        IO.puts("<== return #{result}")
-        result
+      Kernel.defmodule(unquote(name)) do
+        Tracer.def get_name(), do: "#{inspect(__MODULE__)}"
+      end
+    end
+  end
+
+  defmacro def_new_module(name) do
+    quote bind_quoted: [name: name] do
+      Kernel.defmodule(name) do
+        def get_name(), do: "#{inspect(__MODULE__)}"
       end
     end
   end
@@ -38,7 +51,7 @@ defmodule Tracer do
   defmacro __using__(_opt) do
     quote do
       import(Kernel, except: [def: 2])
-      import(unquote(__MODULE__), only: [def: 2])
+      import(unquote(__MODULE__), only: [def: 2, def_sub_module: 1])
     end
   end
 end
